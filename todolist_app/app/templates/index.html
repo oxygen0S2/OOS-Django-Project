@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TO DO LIST</title>
+    <style>
+      body {
+  margin: 0;
+  padding: 0;
+}
+
+#flex-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10vh;
+  gap: 20px;
+}
+
+#flex-console-container {
+  width: 70vw;
+  max-width: 400px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  column-gap: 10px;
+  height: 40px;
+}
+
+#flex-console-container #textfield {
+  width: 100%;
+}
+
+#flex-console-container button {
+  width: 100px;
+  border-radius: 4%;
+  border: 1px solid slategray;
+}
+
+#flex-items-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+}
+
+.flex-item-container {
+  width: 70vw;
+  max-width: 400px;
+  height: 80px;
+  background-color: aliceblue;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px 20px 0px 20px;
+}
+
+.flex-item-container .todo-text {
+  flex: 1;
+}
+
+.flex-item-container .flex-aside-container {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.flex-item-container .flex-aside-container span {
+  color: slategray;
+  margin-bottom: 6px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="flex-container">
+      <h1>TO DO LIST</h1>
+
+      <div id="flex-console-container">
+        <input
+          type="text"
+          name=""
+          id="textfield"
+          placeholder="할 일 입력...."
+        />
+        <button type="button" id="add-todo-btn">추가</button>
+      </div>
+
+      <div id="flex-items-container"></div>
+
+      <!-- 컴포넌트 예제 -->
+      <!-- <div class="flex-item-container" id="item-123456">
+        <h3 class="todo-text""
+              id="todo-delete-btn-12 id="todo-text-123456">학교가기</h3>
+
+        <div class="flex-aside-container">
+          <span>오후 2:50</span>
+
+          <div class="flex-button-container">
+            <button type="button" class="todo-edit-btn" id="todo-edit-btn-123456">
+              수정
+            </button>
+            <button
+              type="button"
+              class="todo-delete-btn3456"
+            >
+              삭제
+            </button>
+          </div>
+        </div>
+      </div> -->
+    </div>
+    <script>
+const addTodoBtn = document.getElementById("add-todo-btn");
+const flexItemsContainer = document.getElementById("flex-items-container");
+
+// local storage와 상호작용하기 위한 객체 저장하는 배열
+var todoItems = [];
+
+// 페이지가 로드될 때 local storage로부터 데이터 가져오기
+document.addEventListener("DOMContentLoaded", (_) => {
+  // CRUD 중 R을 수행
+  todoItems = JSON.parse(localStorage.getItem("todoItems") || "[]");
+  recreateTodoItemViews();
+});
+
+addTodoBtn.addEventListener("click", () => {
+  const textField = document.getElementById("textfield");
+  if (textField.value.length === 0) {
+    alert("할일 내용을 입력해주세요!");
+    return;
+  }
+
+  const created = createNewTodoItem(textField.value);
+  todoItems.push(created); // 배열에 새로 만든 항목 추가
+  putTodoItemView(created); // 새로 만든 항목만 뷰에 추가할 것
+  localStorage.setItem("todoItems", JSON.stringify(todoItems)); // 스토리지에 저장
+});
+
+// CRUD 중 C를 수행
+function createNewTodoItem(todo) {
+  if (!(typeof todo === "string")) return;
+
+  const uuid = generateUUIDWithCryptoAPI();
+  const createdTime = getCurrentDateTime();
+
+  // 반환할 값: UUID, 할일 내용, 생성한 시간
+  return {
+    uuid: uuid,
+    todo: todo,
+    createdTime: createdTime,
+  };
+}
+
+// CRUD 중 U를 수행
+function updateTodoItem(uuid, newTodo) {
+  if (newTodo.length === 0) {
+    alert("할일 내용을 입력해주세요!");
+    return;
+  }
+
+  const updatedIndex = todoItems.findIndex((todo) => todo.uuid === uuid);
+  todoItems[updatedIndex].todo = newTodo;
+  todoItems[updatedIndex].createdTime = getCurrentDateTime();
+  localStorage.setItem("todoItems", JSON.stringify(todoItems));
+  recreateTodoItemViews();
+}
+
+// CRUD 중 D를 수행
+function deleteTodoItem(uuid) {
+  const deletedIndex = todoItems.findIndex((todo) => todo.uuid === uuid);
+  todoItems.splice(deletedIndex, 1);
+  localStorage.setItem("todoItems", JSON.stringify(todoItems));
+  recreateTodoItemViews();
+}
+
+function recreateTodoItemViews() {
+  flexItemsContainer.innerHTML = "";
+
+  for (const todo of todoItems) {
+    putTodoItemView(todo);
+  }
+
+  for (const todo of todoItems) {
+    const editBtn = document.getElementById(`todo-edit-btn-${todo.uuid}`);
+    const deleteBtn = document.getElementById(`todo-delete-btn-${todo.uuid}`);
+
+    // 수정을 위한 이벤트 리스너 지정
+    editBtn.addEventListener("click", () => {
+      const textField = document.getElementById("textfield");
+      updateTodoItem(todo.uuid, textField.value);
+    });
+
+    // 삭제를 위한 이벤트 리스너 지정
+    deleteBtn.addEventListener("click", () => {
+      deleteTodoItem(todo.uuid);
+    });
+  }
+}
+
+// JSON 기반으로 뷰 생성
+function putTodoItemView(data) {
+  if (typeof data !== "object") return;
+
+  const container = document.createElement("div");
+  const todoText = document.createElement("h3");
+
+  const asideContainer = document.createElement("div");
+  const timeText = document.createElement("span");
+  const buttonContainer = document.createElement("div");
+  const editBtn = document.createElement("button");
+  editBtn.type = "button";
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+
+  // 계층 구조 정하기
+  buttonContainer.appendChild(editBtn);
+  buttonContainer.appendChild(deleteBtn);
+  asideContainer.appendChild(timeText);
+  asideContainer.appendChild(buttonContainer);
+  container.appendChild(todoText);
+  container.appendChild(asideContainer);
+
+  // class, id 지정
+  container.className = "flex-item-container";
+  container.id = `item-${data.uuid}`;
+  asideContainer.className = "flex-aside-container";
+  todoText.className = "todo-text";
+  todoText.id = `todo-text-btn-${data.uuid}`;
+  buttonContainer.className = "flex-button-container";
+  editBtn.className = "todo-edit-btn";
+  editBtn.id = `todo-edit-btn-${data.uuid}`;
+  deleteBtn.className = "todo-delete-btn";
+  deleteBtn.id = `todo-delete-btn-${data.uuid}`;
+
+  // 속성 및 텍스트 지정
+  todoText.innerText = data.todo;
+  console.log(data);
+  timeText.innerText = convertToAmPmFormat(data.createdTime);
+  editBtn.innerText = "수정";
+  deleteBtn.innerText = "삭제";
+
+  flexItemsContainer.appendChild(container);
+}
+
+function generateUUIDWithCryptoAPI() {
+  const data = new Uint8Array(16);
+  window.crypto.getRandomValues(data);
+
+  data[6] = (data[6] & 0x0f) | 0x40;
+  data[8] = (data[8] & 0x3f) | 0x80;
+
+  return [
+    ...data.subarray(0, 4).map((b) => b.toString(16).padStart(2, "0")),
+    ...data.subarray(4, 6).map((b) => b.toString(16).padStart(2, "0")),
+    ...data.subarray(6, 8).map((b) => b.toString(16).padStart(2, "0")),
+    ...data.subarray(8, 10).map((b) => b.toString(16).padStart(2, "0")),
+    ...data.subarray(10, 16).map((b) => b.toString(16).padStart(2, "0")),
+  ].join("");
+}
+
+function getCurrentDateTime() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // 월은 0부터 시작하므로 1을 더하고 두 자리로 맞춤
+  const day = String(now.getDate()).padStart(2, "0");
+
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  const dateTimeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+  return dateTimeString;
+}
+
+function convertToAmPmFormat(dateTimeString) {
+  console.log(dateTimeString);
+  const dateParts = dateTimeString.split(" ")[0].split("-");
+  const timeParts = dateTimeString.split(" ")[1].split(":");
+
+  const year = dateParts[0];
+  const month = dateParts[1];
+  const day = dateParts[2];
+
+  let hours = parseInt(timeParts[0], 10);
+  const minutes = timeParts[1];
+
+  let period = "오전";
+
+  if (hours >= 12) {
+    period = "오후";
+    if (hours > 12) {
+      hours -= 12;
+    }
+  }
+
+  hours = String(hours).padStart(2, "0"); // 시간을 두 자리로 맞춤
+
+  const amPmFormat = `${period} ${hours}:${minutes}`;
+
+  return amPmFormat;
+}
+
+
+    </script>
+  </body>
+</html>
