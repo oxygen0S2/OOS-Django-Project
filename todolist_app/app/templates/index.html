@@ -7,7 +7,7 @@
     <style>
       body {
   margin: 0;
-  padding: 0;
+  padding: 0; 
 }
 
 #flex-container {
@@ -82,49 +82,29 @@
           type="text"
           name=""
           id="textfield"
-          placeholder="할 일 입력...."
+          placeholder="할 일 입력..."
         />
         <button type="button" id="add-todo-btn">추가</button>
       </div>
 
       <div id="flex-items-container"></div>
-
-      <!-- 컴포넌트 예제 -->
-      <!-- <div class="flex-item-container" id="item-123456">
-        <h3 class="todo-text""
-              id="todo-delete-btn-12 id="todo-text-123456">학교가기</h3>
-
-        <div class="flex-aside-container">
-          <span>오후 2:50</span>
-
-          <div class="flex-button-container">
-            <button type="button" class="todo-edit-btn" id="todo-edit-btn-123456">
-              수정
-            </button>
-            <button
-              type="button"
-              class="todo-delete-btn3456"
-            >
-              삭제
-            </button>
-          </div>
-        </div>
-      </div> -->
     </div>
     <script>
+
 const addTodoBtn = document.getElementById("add-todo-btn");
 const flexItemsContainer = document.getElementById("flex-items-container");
 
-// local storage와 상호작용하기 위한 객체 저장하는 배열
+//local storage와 상호작용하기 위한 객체를 저장하는 배열
 var todoItems = [];
 
-// 페이지가 로드될 때 local storage로부터 데이터 가져오기
+//page가 load될 때 local storage로부터 데이터 가져오기
 document.addEventListener("DOMContentLoaded", (_) => {
-  // CRUD 중 R을 수행
+  //local storage에서 가져온 데이터를 'todoItems' 배열에 저장
   todoItems = JSON.parse(localStorage.getItem("todoItems") || "[]");
   recreateTodoItemViews();
 });
 
+//사용자가 입력한 할 일을 가져와 새로운 항목 생성
 addTodoBtn.addEventListener("click", () => {
   const textField = document.getElementById("textfield");
   if (textField.value.length === 0) {
@@ -133,19 +113,19 @@ addTodoBtn.addEventListener("click", () => {
   }
 
   const created = createNewTodoItem(textField.value);
-  todoItems.push(created); // 배열에 새로 만든 항목 추가
-  putTodoItemView(created); // 새로 만든 항목만 뷰에 추가할 것
-  localStorage.setItem("todoItems", JSON.stringify(todoItems)); // 스토리지에 저장
+  todoItems.push(created); //배열에 새로 만든 항목 추가
+  putTodoItemView(created); //새로 만든 항목만 view에 추가할 것
+  localStorage.setItem("todoItems", JSON.stringify(todoItems)); //storage에 저장
 });
 
-// CRUD 중 C를 수행
+//입력된 할 일에 대한 uuid, createdTime(생성 시간) 정의
 function createNewTodoItem(todo) {
   if (!(typeof todo === "string")) return;
 
   const uuid = generateUUIDWithCryptoAPI();
   const createdTime = getCurrentDateTime();
 
-  // 반환할 값: UUID, 할일 내용, 생성한 시간
+  //반환할 값 : UUID, 할일 내용, 생성한 시간
   return {
     uuid: uuid,
     todo: todo,
@@ -153,30 +133,30 @@ function createNewTodoItem(todo) {
   };
 }
 
-// CRUD 중 U를 수행
+//update 함수
 function updateTodoItem(uuid, newTodo) {
   if (newTodo.length === 0) {
     alert("할일 내용을 입력해주세요!");
     return;
   }
 
-  const updatedIndex = todoItems.findIndex((todo) => todo.uuid === uuid);
-  todoItems[updatedIndex].todo = newTodo;
-  todoItems[updatedIndex].createdTime = getCurrentDateTime();
-  localStorage.setItem("todoItems", JSON.stringify(todoItems));
+  const updatedIndex = todoItems.findIndex((todo) => todo.uuid === uuid); //해당 항목의 index를 찾음
+  todoItems[updatedIndex].todo = newTodo; //찾은 할 일의 항목의 todo를 newTodo로 update
+  todoItems[updatedIndex].createdTime = getCurrentDateTime(); //createdTime을 현재 시간으로 update
+  localStorage.setItem("todoItems", JSON.stringify(todoItems)); //update된 'todoItems' 배열을 local Storage에 저장
   recreateTodoItemViews();
 }
 
-// CRUD 중 D를 수행
+//delete 함수
 function deleteTodoItem(uuid) {
   const deletedIndex = todoItems.findIndex((todo) => todo.uuid === uuid);
-  todoItems.splice(deletedIndex, 1);
-  localStorage.setItem("todoItems", JSON.stringify(todoItems));
+  todoItems.splice(deletedIndex, 1); //해당 index 요소 삭제
+  localStorage.setItem("todoItems", JSON.stringify(todoItems)); //삭제된 'todoItems' 배열을 local Storage에 저장
   recreateTodoItemViews();
 }
 
 function recreateTodoItemViews() {
-  flexItemsContainer.innerHTML = "";
+  flexItemsContainer.innerHTML = ""; //요소 내용 비우기
 
   for (const todo of todoItems) {
     putTodoItemView(todo);
@@ -186,26 +166,26 @@ function recreateTodoItemViews() {
     const editBtn = document.getElementById(`todo-edit-btn-${todo.uuid}`);
     const deleteBtn = document.getElementById(`todo-delete-btn-${todo.uuid}`);
 
-    // 수정을 위한 이벤트 리스너 지정
+    //수정을 위한 event listener 지정 -> 수정을 클릭하면 함수 호출
     editBtn.addEventListener("click", () => {
       const textField = document.getElementById("textfield");
       updateTodoItem(todo.uuid, textField.value);
     });
 
-    // 삭제를 위한 이벤트 리스너 지정
+    //삭제를 위한 event listener 지정 -> 삭제를 클릭하면 함수 호출
     deleteBtn.addEventListener("click", () => {
       deleteTodoItem(todo.uuid);
     });
   }
 }
 
-// JSON 기반으로 뷰 생성
+//JSON 기반으로 view 생성
 function putTodoItemView(data) {
-  if (typeof data !== "object") return;
+  if (typeof data !== "object") return; //object가 아닌 경우 종료
 
+  //요소 생성
   const container = document.createElement("div");
   const todoText = document.createElement("h3");
-
   const asideContainer = document.createElement("div");
   const timeText = document.createElement("span");
   const buttonContainer = document.createElement("div");
@@ -214,7 +194,7 @@ function putTodoItemView(data) {
   const deleteBtn = document.createElement("button");
   deleteBtn.type = "button";
 
-  // 계층 구조 정하기
+  //계층 구조 정하기
   buttonContainer.appendChild(editBtn);
   buttonContainer.appendChild(deleteBtn);
   asideContainer.appendChild(timeText);
@@ -222,7 +202,7 @@ function putTodoItemView(data) {
   container.appendChild(todoText);
   container.appendChild(asideContainer);
 
-  // class, id 지정
+  //class, id 지정
   container.className = "flex-item-container";
   container.id = `item-${data.uuid}`;
   asideContainer.className = "flex-aside-container";
@@ -234,23 +214,24 @@ function putTodoItemView(data) {
   deleteBtn.className = "todo-delete-btn";
   deleteBtn.id = `todo-delete-btn-${data.uuid}`;
 
-  // 속성 및 텍스트 지정
+  //속성 및 텍스트 지정
   todoText.innerText = data.todo;
-  console.log(data);
+  console.log(data); //log로 출력
   timeText.innerText = convertToAmPmFormat(data.createdTime);
-  editBtn.innerText = "수정";
-  deleteBtn.innerText = "삭제";
+  editBtn.innerText = "수정"; //수정 표시
+  deleteBtn.innerText = "삭제"; //삭제 표시
 
   flexItemsContainer.appendChild(container);
 }
 
 function generateUUIDWithCryptoAPI() {
   const data = new Uint8Array(16);
-  window.crypto.getRandomValues(data);
+  window.crypto.getRandomValues(data); //data 배열에 무작위 값 추가
 
   data[6] = (data[6] & 0x0f) | 0x40;
   data[8] = (data[8] & 0x3f) | 0x80;
 
+  //UUID의 각 바이트를 16진수 문자열로 반환 -> 배열로 조합하여 하나의 문자열로 결합
   return [
     ...data.subarray(0, 4).map((b) => b.toString(16).padStart(2, "0")),
     ...data.subarray(4, 6).map((b) => b.toString(16).padStart(2, "0")),
@@ -264,9 +245,8 @@ function getCurrentDateTime() {
   const now = new Date();
 
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // 월은 0부터 시작하므로 1을 더하고 두 자리로 맞춤
+  const month = String(now.getMonth() + 1).padStart(2, "0"); //월은 0부터 시작하므로 1을 더하고 두 자리로 맞춤, 이후 문자열로 변환 후 'padStart()' 함수를 사용해 두 자리로 맞춤
   const day = String(now.getDate()).padStart(2, "0");
-
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
   const seconds = String(now.getSeconds()).padStart(2, "0");
@@ -278,8 +258,9 @@ function getCurrentDateTime() {
 
 function convertToAmPmFormat(dateTimeString) {
   console.log(dateTimeString);
-  const dateParts = dateTimeString.split(" ")[0].split("-");
-  const timeParts = dateTimeString.split(" ")[1].split(":");
+
+  const dateParts = dateTimeString.split(" ")[0].split("-"); //공백을 기준으로 날짜 추출 후 하이픈을 기준으로 연도, 월, 일로 나누어 배열에 저장
+  const timeParts = dateTimeString.split(" ")[1].split(":"); //공백을 기준으로 시간 추출 후 콜론을 기준으로 시간, 분으로 나누어 배열에 저장
 
   const year = dateParts[0];
   const month = dateParts[1];
@@ -288,7 +269,7 @@ function convertToAmPmFormat(dateTimeString) {
   let hours = parseInt(timeParts[0], 10);
   const minutes = timeParts[1];
 
-  let period = "오전";
+  let period = "오전"; //default
 
   if (hours >= 12) {
     period = "오후";
@@ -297,13 +278,12 @@ function convertToAmPmFormat(dateTimeString) {
     }
   }
 
-  hours = String(hours).padStart(2, "0"); // 시간을 두 자리로 맞춤
+  hours = String(hours).padStart(2, "0"); //시간을 두 자리로 맞춤
 
   const amPmFormat = `${period} ${hours}:${minutes}`;
 
   return amPmFormat;
 }
-
 
     </script>
   </body>
