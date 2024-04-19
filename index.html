@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #headline {
+            height: 80vh;
+            background-color: aqua;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #headline .child:first-child {
+            border: 4px dotted #1234aa;
+            padding: 20px 1px 100px 200px;
+            /* margin */
+        }
+
+        #headline .child:last-child:hover {
+            color: orange;
+            transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+            transition-duration: 1s;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="headline" class="headline">
+        <span id="first" class="child">dddd..dd</span>
+        <span class="child">dddd..dd</span>
+        <span class="child">dddd..dd</span>
+    </h1>
+</body>
+</html>
