@@ -20,6 +20,7 @@ from django.urls import path
 from app.views import index
 
 urlpatterns = [
-    path('index.html/', index, name='index'),
+    #path에서 ''으로 설정하면 django를 실행하자마자 바로 todo-list 페이지로 넘어감
+    path('', index, name='index'),
     path('admin/', admin.site.urls),
 ]
