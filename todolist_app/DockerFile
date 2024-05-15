@@ -6,7 +6,7 @@ WORKDIR /todolist_app
 COPY . .
 #django를 이미지 내에서 실행시키기 위해 pip로 설치해야할 내용들을 설치하는 명령 실행
 #requirements.txt에 적혀있는 pip들을 설치하게 됨
-RUN pip install -r requirements.txt
+RUN pip install django
 #컨테이너가 실행될 때 기본으로 실행할 명령 지정
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 #django 서버의 포트를 8000번으로 지정하였으므로 docker의 컨테이너 또한 8000 포트를 열어줌
