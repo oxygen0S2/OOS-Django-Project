@@ -5,7 +5,6 @@ WORKDIR /todolist_app
 #현재 디렉토리의 모든 파일과 폴더가 이미지 내의 /todolist_app 디렉토리로 복사됨
 COPY . .
 #django를 이미지 내에서 실행시키기 위해 pip로 설치해야할 내용들을 설치하는 명령 실행
-#requirements.txt에 적혀있는 pip들을 설치하게 됨
 RUN pip install django
 #컨테이너가 실행될 때 기본으로 실행할 명령 지정
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
